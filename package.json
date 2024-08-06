@@ -4,7 +4,7 @@
   "description": "save and resume your search history during code audit",
   "publisher": "sunriseXu",
   "repository": "https://github.com/sunriseXu/code-audit-search",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.75.0"
   },
