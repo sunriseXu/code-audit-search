@@ -1,0 +1,46 @@
+
+.mydropdown ul{
+    width: 98%;
+    margin: 0px;
+    padding: 0px;
+    z-index: 1;
+    position: absolute;
+    list-style: none;
+    background-color: rgb(255, 255, 255);
+    overflow: auto;
+    max-height: 150px;
+    max-width: 180px;
+    border: 0.8px solid rgb(206, 206, 206);
+    display: none;
+    font-size: 13px;
+    scrollbar-width:thin;
+    
+}
+
+.mydropdown ul.show{
+    display: block;
+}
+
+.mydropdown li{
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-bottom: 3px;
+    cursor: pointer;
+    text-overflow: ellipsis;
+    list-style-position:inside;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.mydropdown li:hover{
+    background-color: #0090f1;
+    color: white;
+}
+
+.mydropdown span.rotate{
+    transform: rotate(90deg)
+}
+.mydropdown span:hover{
+    background-color: #f3f3f3;
+    cursor: pointer;
+}

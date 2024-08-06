@@ -1,0 +1,318 @@
+name: vuln regex finding
+author: sunriseXu
+ignore:
+  file: 
+    - test.js,*test.js,*test.ts,*spec.js,*spec.rb,*.min.js
+  directory: 
+    - test*,example*,docs,doc,node_modules,spec,locale
+longestline: 700
+fileRex:
+  js: &js
+    fileRe: >-
+      *.js,*.mjs,*.ts,*.tsx,*.cjs,*.mts
+  vuejs: &vuejs
+    fileRe: >-
+      *.js,*.vue
+  emberjs: &emberjs
+    fileRe: >-
+      *.js,*.hbs,*.gjs
+  backend: &backend
+    fileRe: >-
+      *.js,*.py,*.rb,*.java
+  ruby: &ruby
+    fileRe: >-
+      *.rb
+  python: &python
+    fileRe: >-
+      *.py
+  php: &php
+    fileRe: >-
+      *.php
+  go: &go
+    fileRe: >-
+      *.go
+  rust: &rust
+    fileRe: >-
+      *.rs
+regexs:
+    - jqueryAttrSelector:
+        type: xss
+        lang: js
+        <<: *js
+        disc: find attribute selector in js content, for jquery csp bypass
+        example: >-
+          find('[data-diff-for-path]')
+        link: https://hackerone.com/reports/1731349
+        re: >-
+          \(['"`]\[[\S]{3,40}?\]['"`]\)
+    - jsAttrSelector:
+        type: xss csp
+        lang: js
+        <<: *js
+        disc: find attribute selector in js content, but just selector strings, for jquery/js csp bypass
+        example: >-
+          handlePopoverEvent(document, e, '[data-toggle="popover"]')
+        link: https://hackerone.com/reports/1731349
+        re: >-
+          ['"`]\[[\S]{3,60}?\]['"`]
+    - jqueryGetDataAttr:
+        type: xss csp
+        lang: js
+        <<: *js
+        disc: find jquery get data attributes
+        example: >-
+          find('[data-diff-for-path]').data('diffForPath')
+        link: https://hackerone.com/reports/1731349
+        re: >-
+          \.data\([\s\S]*?\)
+    - vueGetDataAttr:
+        type: xss csp
+        lang: vue/js
+        <<: *vuejs
+        disc: find vue/js get data attributes
+        example: >-
+          { content, html, placement, title} = element.dataset
+        link: https://hackerone.com/reports/1731349
+        re: >-
+          \.dataset
+    - emberjsTemplateHtmlSafe:
+        type: xss csp
+        lang: ember/js
+        <<: *emberjs
+        disc: find ember/js template html safe
+        example: >-
+          <DMenu @label={{html-safe "${this.label} }}
+        link: ~
+        re: >-
+          \{\{[\s]{0,20}?html-safe[\s\S]{0,100}?\}\}
+    - reactSetInnerHtml:
+        type: xss csp
+        lang: react/js
+        <<: *js
+        disc: find react/js set innerhtml
+        example: >-
+          ---
+        link: https://github.com/mintplex-labs/anything-llm/commit/a4ace56a401ffc8ce0082d7444159dfd5dc28834
+        re: >-
+          dangerouslySetInnerHTML
+    - jqueryCreateTags:
+        type: xss csp
+        lang: js
+        <<: *js
+        disc: find jquery snippets creating raw html tags
+        example: >-
+          $(`<p class='${errorMessageClass} hidden'>${this.errorMessage}</p>`)
+        link: https://hackerone.com/reports/1665658
+        re: >-
+          \$\(['"`][\s\S]{0,100}?<[\s\S]{3,200}?>[\s\S]{0,100}?['"`]\)
+    - jqueryCreateTags2:
+        type: xss csp
+        lang: js
+        <<: *js
+        disc: find jquery snippets creating raw html tags
+        example: >-
+          $('<ul>').append(html)
+        link: ~
+        re: >-
+          \.(before|append|prepend|after)\([\s\S]{1,250}?\)
+    - jqueryCreateTags3:
+        type: xss csp
+        lang: js
+        <<: *js
+        disc: find jquery snippets creating raw html tags
+        example: >-
+          $( "<div/>", {"class": "test", "herf":xxx
+        link: ~
+        re: >-
+          \$\([\s]{0,10}['"`]<.{1,30}?>['"`][\s]{0,30}?,[\s]{0,30}?\{[\s\S]{0,100}?(href|src)
+    - jqTempStr1:
+        type: xss csp
+        lang: js
+        <<: *js
+        disc: js template strings for raw html tags
+        example: >-
+          `…<strong>${key.title}</strong>…`
+        link: https://hackerone.com/reports/1588732
+        re: >-
+          `[\s\S]{0,20}<[\s\S]{0,200}?\${[\s\S]*?}
+    - jqTempStr2:
+        type: xss csp
+        lang: js
+        <<: *js
+        disc: js template strings for raw html tags
+        example: >-
+          "<a>Hello, " + name
+        link: https://hackerone.com/reports/1588732
+        re: >-
+          [><][\s\S]{0,80}?['"`][\s]{0,20}?\+[\s]{0,20}?\b\w*\b
+    - jqTempStr3:
+        type: xss csp
+        lang: js
+        <<: *js
+        disc: js template strings for raw html tags
+        example: >-
+          name + "!</a>"
+        link: https://hackerone.com/reports/1588732
+        re: >-
+          \b\w*\b[\s]{0,20}?\+[\s]{0,20}?['"`][\s\S]{0,80}?[><]
+    - rubyTempStr1:
+        type: xss
+        lang: rb
+        <<: *ruby
+        disc: ruby template strings for raw html tags, % and %Q version
+        example: >-
+          %(<img src="#{image_src}">)
+        link: https://hackerone.com/reports/1731349
+        re: >-
+          %(Q|W)?([^a-zA-Z\d\s])[\s\S]{0,50}?<[\s\S]{0,50}?#\{[\s\S]{1,50}?\}[\s\S]{0,50}?>
+    - rubyTempStr2:
+        type: xss
+        lang: rb
+        <<: *ruby
+        disc: ruby template strings for raw html tags, heredoc version
+        example: >-
+          <<~TEXT 
+          Dear #{name},
+          TEXT
+        link: https://hackerone.com/reports/1731349
+        re: >-
+          <<[-~]?`?(.*?)`?(\.|\r\n|\r|\n)[\s\S]{0,50}?<[\s\S]{0,200}?#\{[\s\S]{1,90}?\}[\s\S]{0,500}?>[\s\S]{0,200}?\1
+    - rubyTempStr3:
+        type: xss
+        lang: rb
+        <<: *ruby
+        disc: ruby template strings for raw html tags, string version
+        example: >-
+          "<abbr#{title_attr}>#{traverse(node)}</abbr>"
+        link: https://hackerone.com/reports/1731349
+        re: >-
+          "[\s\S]{0,50}?<[\s\S]{0,200}?#\{[\s\S]{1,90}?\}[\s\S]{0,500}?>[\s\S]{0,200}?"
+    - rubyHTMLSAFE:
+        type: xss
+        lang: rb
+        <<: *ruby
+        disc: find ruby methods containing html_safe keyword
+        example: >-
+          def raw(stringish)
+            stringish.to_s.html_safe
+          end
+        link: https://hackerone.com/reports/1665658
+        re: >-
+          def(?:[\s\S](?!def ))*html_safe[\s\S]*?[\s]+?end
+    - FilePathConcate1:
+        type: file
+        lang: python
+        <<: *python
+        disc: find python file manipulation, todo-add more flexiable regex
+        example: >-
+          file_path = lollmsElfServer.lollms_paths.personal_uploads_path / f"web_{index}.txt"
+        link: https://github.com/ParisNeo/lollms-webui/blob/main/docs/vulenerabilities/events/lollms_chatbox_events.md#2-path-traversal-cwe-22
+        re: >-
+          (path|file|name|f)[\s]{0,10}?=[\s]{0,10}?[\s\S]{1,100}?[\s]{0,10}?\/[\s]{0,10}?f['"`][\s\S]{0,100}?\{[\S]{0,20}\}[\s\S]{0,100}?['"`]
+    - FilePathRouter:
+        type: file
+        lang: python
+        <<: *python
+        disc: find router with path
+        example: >-
+          @router.get("/personalities/{path:path}")
+        link: >-
+          https://github.com/ParisNeo/lollms/blob/main/lollms/server/endpoints/lollms_binding_files_server.py#L70
+          https://huntr.com/bounties/29ec621a-bd69-4225-ab0f-5bb8a1d10c67
+        re: >-
+          @[\S]{1,20}\.(get|post|patch|delete)\([\s]{0,10}?['"`][\S]{0,50}?\{.*?:.*?path.*?\}[\s\S]{0,50}?\)
+    - phpSqli:
+        type: sqli
+        lang: php
+        <<: *php
+        disc: find sql injection in php
+        example: >-
+          $sql .= sprintf(' LIMIT %s,%s', $offset, $per_page);
+        link: >-
+          https://huntr.com/bounties/4e60ebc1-e00f-48cb-b011-3cefce688ecd
+          https://github.com/fossbilling/fossbilling/commit/2ddb7438ee0d05f9a9d01555edcfed820960f114
+        re: >-
+          (printf|sprintf)\([\s]{0,10}?['"`].*?(limit|LIMIT|select|SELECT|UPDATE)[\s\S]*?%s['"`][\s\S]*?\)
+    - untarPython:
+        type: extractor
+        lang: python
+        <<: *python
+        disc: find extractor isuue, such as symlink to arbitrary file read. file absolute name for arbitrary file overwrite
+        example: >-
+          tar --absolute-names -cvf hack.tar /root/.ssh/authorized_keys
+          py: files = tarfile.open("hack.tar", mode)
+          py: files.getnames() => ['/home/kali/.ssh/authorized_keys']
+          py: files.extractall("/any") => overwrite /home/kali/.ssh/authorized_keys
+        link: >-
+          https://huntr.com/bounties/5d7e5752-085c-4e93-af0d-e25f05a27b89
+          https://github.com/PaddlePaddle/Paddle/blob/557b888e2c07631a347a1f8b0e06d3cec3250eb1/python/paddle/utils/download.py#L315
+        re: >-
+          \.extractall\([\s\S]{0,100}?\)
+    - untarJs:
+        type: extractor
+        lang: js
+        <<: *js
+        disc: find extractor isuue, such as symlink to arbitrary file read. file absolute name for arbitrary file overwrite
+        example: >-
+          tar --absolute-names -cvf hack.tar /root/.ssh/authorized_keys
+          js: tar = require("tar")
+          js: tar.x({file:"/home/kali/hack.tar",preservePaths:true}).then(_=>{})
+          js: tar.extract({file:"/home/kali/hack.tar",P:true}).then(_=>{})
+        link: >-
+          https://huntr.com/bounties/5d7e5752-085c-4e93-af0d-e25f05a27b89
+          https://github.com/PaddlePaddle/Paddle/blob/557b888e2c07631a347a1f8b0e06d3cec3250eb1/python/paddle/utils/download.py#L315
+        re: >-
+          \.(x|extract)\([\s\S]{0,100}?(preservePaths|P)[\s\S]{0,100}?\)
+    - rceInRoute:
+        type: rce
+        lang: python
+        <<: *python
+        disc: find routers which contain os command execution
+        example: >-
+          flask:
+          @app.route('/')
+          fastapi:
+          @app.get('/')
+          async def index(request):
+            os.system("xx"+request.body.id)
+        link: >-
+          https://huntr.com/bounties/5d7e5752-085c-4e93-af0d-e25f05a27b89
+          https://github.com/PaddlePaddle/Paddle/blob/557b888e2c07631a347a1f8b0e06d3cec3250eb1/python/paddle/utils/download.py#L315
+        re: >-
+          @[\S]{1,20}?\.(get|post|patch|delete|route)\([\s\S]{1,200}?(os.system|os.popen|subprocess|sh\.)[\s\S]{1,200}?\)
+    - rceInGo:
+        type: rce
+        lang: go
+        <<: *go
+        disc: find go command which contain os command execution
+        example: >-
+          out, err := sh(fmt.Sprintf("ffmpeg -i %s -format s16le -ar 16000 -ac 1 -acodec pcm_s16le %s", src, dst))
+          cmd := exec.Command("/bin/sh", "-c", c)
+        link: >-
+          https://huntr.com/bounties/e092528a-ce3b-4e66-9b98-3f56d6b276b0
+        re: >-
+          \.Sprintf\([\s]{0,10}?['"`][\s\S]{0,100}?[\s]%s[\s\S]{0,200}?['"`][\s]{0,10}?,[\s\S]{1,30}?\)[\s\S]{0,300}?(Command|exec|cmd)[\s\S]{0,100}?\)
+    - rceInGo2:
+        type: rce
+        lang: go
+        <<: *go
+        disc: find go command which contain os command execution
+        example: >-
+          out, err := sh(fmt.Sprintf("ffmpeg -i %s -format s16le -ar 16000 -ac 1 -acodec pcm_s16le %s", src, dst))
+          cmd := exec.Command("/bin/sh", "-c", c)
+        link: >-
+          https://huntr.com/bounties/e092528a-ce3b-4e66-9b98-3f56d6b276b0
+        re: >-
+          \.Command\([\s\S]{1,20}?(sh|bash)[\s\S]{3,100}?\)
+    - fileJoinInRust:
+        type: rce
+        lang: rust
+        <<: *rust
+        disc: find rust file path join
+        example: >-
+          let path = collection_snapshot_path.join(filename);
+          move_file(snapshot.file.path(), &path).await?;
+        link: >-
+          https://huntr.com/bounties/6be8d4e3-67e6-4660-a8db-04215a1cff3e
+        re: >-
+          (path|file)[\s\S]{0,20}?=[\s\S]{0,40}?\.join\([\s\S]{1,30}?\)
