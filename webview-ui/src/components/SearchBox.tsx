@@ -87,9 +87,10 @@ export function SearchBox(props: propsType) {
         onChange={handleOnchange}
       >
         search regex
-        <span slot="end" 
+        {/* <span slot="end" 
             className="codicon codicon-regex regex">
-        </span>
+        </span> */}
+        <span slot="end" className="codicon--regex regex"></span>
       </VSCodeTextField>
 
       <ForwardedTextInput 

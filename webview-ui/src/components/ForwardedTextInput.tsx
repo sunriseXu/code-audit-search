@@ -53,12 +53,16 @@ const TextInput:React.ForwardRefRenderFunction<any, Props> = (
           ref={ref}
         >
           {label}
-          <span slot="end" 
+          {/* <span slot="end" 
             className={"codicon codicon-chevron-right " + (open ? "rotate" : "")}
             onClick={() => setOpen(!open)}
             ref={arrowRef}
-          >
-          </span>
+          > */}
+            <span slot="end" 
+              className={"codicon--chevron-right "+ (open ? "rotate" : "")}
+              onClick={() => setOpen(!open)}
+              ref={arrowRef}
+            ></span>
         </VSCodeTextField>
 
         <ul role="listbox" className={open ? "show": ""}>
