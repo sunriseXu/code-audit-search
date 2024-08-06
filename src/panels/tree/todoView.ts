@@ -78,7 +78,7 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 		this.origin = Object.assign({}, data);
 
 		// get previous stored data
-		var localData = this.storageManager?.getValue(this.regex)
+		var localData: any = this.storageManager?.getValue(this.regex)
 		// if exist, then we load stored data instead of search results
 		if(localData){
 			this.tree = localData?.tree;

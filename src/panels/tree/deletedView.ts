@@ -45,7 +45,7 @@ export class DeletedView implements vscode.TreeDataProvider<Node> {
 		this.origin = clone(origin);
 
 		// get previous stored data
-		let localData = this.storageManager?.getValue(this.regex)
+		let localData: any = this.storageManager?.getValue(this.regex)
 		// if exist, then we load stored data instead of search results
 		if(localData?.tree){
 			this.tree = difference(this.origin, localData?.tree);

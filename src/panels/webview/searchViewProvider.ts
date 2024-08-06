@@ -24,7 +24,7 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
         private readonly context: vscode.ExtensionContext,
 	) { 
         this.storageManager = new LocalStorageService(this.context.workspaceState);
-		this.globalStorageManager = new GlobalStorageService(context.globalState);
+		this.globalStorageManager = new GlobalStorageService(this.context.globalState);
 
         // save this search in current workspace, in local storage
         // saved search
@@ -51,7 +51,7 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
 
     public updateLocalData(){
         let allLocalData = this.storageManager?.getAllData()
-        let allLocalSearch = allLocalData?.map(item => {
+        let allLocalSearch = allLocalData?.map( (item: any) => {
             return item?.regexRaw
         })
         allLocalSearch = allLocalSearch?.filter(element => {
@@ -66,7 +66,7 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
 
     public updateGlobalData(){
         let allGlobalData = this.globalStorageManager?.getAllData()
-        allGlobalData = allGlobalData?.filter(element => {
+        allGlobalData = allGlobalData?.filter((element:any) => {
             return element?.hasOwnProperty("label")
         })
         

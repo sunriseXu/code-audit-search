@@ -87,13 +87,13 @@ export const countResults = (treeMap: Object) =>{
 
 // all results: obj1
 // remaining results: obj2
-export const difference = (obj1: Object, obj2: Object) => {
-    let result = {}
+export const difference = (obj1: any, obj2: any) => {
+    let result: any = {}
     for (var filePath of Object.keys(obj1)) {
         if(!(filePath in obj2)){
             result[filePath] = obj1[filePath]
         }else{
-            var tmp = {}
+            var tmp:any = {}
             for(var hash of Object.keys(obj1[filePath])){
                 if(!(hash in obj2[filePath])){
                     tmp[hash] = obj1[filePath][hash]
