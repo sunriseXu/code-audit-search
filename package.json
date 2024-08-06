@@ -57,7 +57,7 @@
         {
           "id": "auditSearch",
           "title": "AuditSearch",
-          "icon": "$(notebook)"
+          "icon": "$(search-fuzzy)"
         }
       ]
     },
