@@ -153,7 +153,6 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
                             // 1. fetch from local storage
                             // 2. compare storage with the results
                             
-                            let regex = "testtest3"
                             //show result
                             vscode.commands.executeCommand('AuditSearch.initTodoView', mergedMap, data.obj)
                             vscode.commands.executeCommand('AuditSearch.initDeletedView', mergedMap, data.obj)
@@ -183,7 +182,7 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
         // The JS file from the React build output
         const scriptUri = getUri(webview, this._extensionUri, ["webview-ui", "build", "assets", "index.js"]);
     
-        const iconStyleUri = getUri(webview, this._extensionUri, ["webview-ui", "node_modules", '@vscode/codicons', 'dist', 'codicon.css']);
+        // const iconStyleUri = getUri(webview, this._extensionUri, ["webview-ui", "node_modules", '@vscode/codicons', 'dist', 'codicon.css']);
     
 		// Use a nonce to only allow a specific script to be run.
 		const nonce = getNonce();
@@ -196,8 +195,7 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
                 <meta charset="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <link rel="stylesheet" type="text/css" href="${stylesUri}">
-                <link rel="stylesheet" type="text/css" href="${iconStyleUri}">
-                <title>Hello World</title>
+                <title>audit search</title>
                 </head>
                 <body>
                 <div id="root"></div>

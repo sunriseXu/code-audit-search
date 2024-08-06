@@ -1,7 +1,7 @@
 {
   "name": "audit-search",
   "displayName": "code-audit-search",
-  "description": "save and resume your search history during code audit",
+  "description": "Save and resume your search history during code audit",
   "publisher": "sunriseXu",
   "repository": "https://github.com/sunriseXu/code-audit-search",
   "version": "0.0.3",

@@ -11,9 +11,9 @@ export const md5 = (contents: string) => crypto.createHash('md5').update(content
 export const execShell = (cmd: string) =>
     new Promise<string>((resolve, reject) => {
         cp.exec(cmd, (err, out) => {
-            if (err) {
-                return reject(err);
-            }
+            // if (err) {
+            //     return reject(err);
+            // }
             return resolve(out);
         });
     });
@@ -137,7 +137,7 @@ export const parseRegex = (data: RegexRaw, workspaceDir: string) => {
     let includeCmd = includes.reduce((partial, item) => partial + ` --include="${item}"`, "")
     let excludeCmd = excludes.reduce((partial, item) => partial + ` --exclude="${item}"`, "")
     let excludeDirCmd = excludeDirs.reduce((partial, item) => partial + ` --exclude-dir="${item}"`, "")
-    let cmd = `grep -P '${regex}' -rn ${workspaceDir} ${includeCmd} ${excludeCmd} ${excludeDirCmd}`
+    let cmd = `grep -P '${regex}' -rn ${workspaceDir} ${includeCmd} ${excludeCmd} ${excludeDirCmd} 2>&-`
     return {
         re: regex,
         include: includes,
