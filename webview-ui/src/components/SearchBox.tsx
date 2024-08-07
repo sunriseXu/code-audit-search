@@ -10,7 +10,7 @@ type propsType = {
 }
 
 export function SearchBox(props: propsType) {
-  
+
   const [searchRes, setSearchRes] = React.useState<string>('');
 
   const [isRes, setIsRes] = React.useState<boolean>(false);
@@ -28,7 +28,7 @@ export function SearchBox(props: propsType) {
   React.useEffect(() => {
     const handleWebviewEvents = (event: any) => {
       console.log("new event", event)
-      switch(event.data.command){
+      switch (event.data.command) {
         case "result":
           let message = event.data.message;
           setSearchRes(message)
@@ -41,7 +41,7 @@ export function SearchBox(props: propsType) {
           includeRef.current.value = initData.include;
           excludeRef.current.value = initData.hasOwnProperty('exclude') ? initData?.exclude : props.data.excludes[0]
           excludeDirRef.current.value = initData.hasOwnProperty('excludeDir') ? initData?.excludeDir : props.data.excludeDirs[0]
-          if(event.data?.search)
+          if (event.data?.search)
             handleEnter()
           break;
       }
@@ -50,10 +50,10 @@ export function SearchBox(props: propsType) {
     return () => window.removeEventListener('message', handleWebviewEvents)
   }, []);
 
-  function handleEnter(){
+  function handleEnter() {
     console.log("enter called")
-    console.log("current value:",includeRef)
-    console.log("current value:",includeRef.current.value)
+    console.log("current value:", includeRef)
+    console.log("current value:", includeRef.current.value)
     setIsRes(false)
     setIsEnter(true)
     let re = reRef.current.value;
@@ -64,21 +64,21 @@ export function SearchBox(props: propsType) {
     vscode.postMessage({
       command: "search",
       obj: {
-          re: re,
-          include: include,
-          exclude: exclude,
-          excludeDir: excludeDir
+        re: re,
+        include: include,
+        exclude: exclude,
+        excludeDir: excludeDir
       }
     });
   }
 
-  function handleReEnter(e: any){
+  function handleReEnter(e: any) {
     if (e.key === 'Enter') {
       handleEnter()
     }
   }
 
-  function handleOnchange(e: any){
+  function handleOnchange(e: any) {
     console.log("handle onchange")
     setIsRes(false)
   }
@@ -86,7 +86,7 @@ export function SearchBox(props: propsType) {
 
   return (
     <>
-      <VSCodeTextField 
+      <VSCodeTextField
         placeholder="use perl regex"
         ref={reRef}
         onKeyDown={handleReEnter}
@@ -99,7 +99,7 @@ export function SearchBox(props: propsType) {
         <span slot="end" className="codicon--regex regex"></span>
       </VSCodeTextField>
 
-      <ForwardedTextInput 
+      <ForwardedTextInput
         ref={includeRef}
         label="files to include"
         placeholder="e.g. *.js,*.ts"
@@ -107,7 +107,7 @@ export function SearchBox(props: propsType) {
         onEnter={handleEnter}
       />
 
-      <ForwardedTextInput 
+      <ForwardedTextInput
         ref={excludeRef}
         label="files to exclude"
         placeholder="e.g. *.min.js,*test.js"
@@ -115,20 +115,20 @@ export function SearchBox(props: propsType) {
         onEnter={handleEnter}
       />
 
-      <ForwardedTextInput 
+      <ForwardedTextInput
         ref={excludeDirRef}
         label="directories to exclude"
         placeholder="e.g. test*,docs"
         initData={props.data.excludeDirs}
         onEnter={handleEnter}
       />
-      {isRes ? 
+      {isRes ?
         (<div className="">{searchRes}</div>) :
-        isEnter ? (<LinearProgress sx={{ width: '100%', height:"3px",marginTop:"3px" }}/>) :
-        ""
+        isEnter ? (<LinearProgress sx={{ width: '100%', height: "3px", marginTop: "3px" }} />) :
+          ""
       }
       <VSCodeDivider></VSCodeDivider>
-      
+
     </>
   );
 }

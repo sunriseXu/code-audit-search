@@ -7,13 +7,11 @@ export function activate(context: ExtensionContext) {
 
   const provider = new SearchViewProvider(context.extensionUri, context);
   context.subscriptions.push(
-		window.registerWebviewViewProvider(SearchViewProvider.viewType, provider)
+    window.registerWebviewViewProvider(SearchViewProvider.viewType, provider)
   );
 
   new DeletedView(context);
 
   new TodoView(context);
-
-  
 
 }

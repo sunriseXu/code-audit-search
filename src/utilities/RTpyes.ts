@@ -4,14 +4,14 @@
 //     fileRe: string,
 //     label: string
 //   }
-  
+
 // export type RegexModel = {
 //     [type: string]: RegexItem[]
 //   }
-  
-  export type RegexRaw = {
-    re: string,
-    include: string,
-    exclude: string,
-    excludeDir: string
-  }
+
+export type RegexRaw = {
+  re: string,
+  include: string,
+  exclude: string,
+  excludeDir: string
+}

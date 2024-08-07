@@ -1,26 +1,27 @@
 import { Memento } from "vscode";
 
 export class LocalStorageService {
-    
-    constructor(private storage: Memento) { }   
-    
-    public getValue<T>(key : string) : T{
+
+    constructor(private storage: Memento) { }
+
+    public getValue<T>(key: string): T {
         return this.storage.get<T>(key, null as any);
     }
 
-    public setValue<T>(key : string, value : T){
-        this.storage.update(key, value );
+    public setValue<T>(key: string, value: T) {
+        this.storage.update(key, value);
+
     }
 
-    public getKeys(){
+    public getKeys() {
         return this.storage.keys();
     }
 
-    public getAllData(){
+    public getAllData() {
         return this.storage.keys().map(key => {
             return this.getValue(key)
         })
     }
-    
+
 
 }

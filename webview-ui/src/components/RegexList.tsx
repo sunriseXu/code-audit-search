@@ -14,10 +14,10 @@ import { RegexItem } from '../utilities/types/RTpyes';
 
 
 interface RegexProps {
-    initData: RegexItem[];
-    type: string;
-    checked: string;
-    handleToggle: (item: any) => void;
+  initData: RegexItem[];
+  type: string;
+  checked: string;
+  handleToggle: (item: any) => void;
 
 }
 
@@ -35,21 +35,21 @@ const FireNav = styled(List)<{ component?: React.ElementType }>({
     color: '#616161'
   },
   "& .MuiTouchRipple-root .MuiTouchRipple-child": {
-  borderRadius: "2px"
-}
+    borderRadius: "2px"
+  }
 });
 
 const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: '#f2f2f2',
-      color: '#616161',
-      boxShadow: theme.shadows[1],
-      fontSize: 11,
-      BorderColor:'#cccccc'
-    },
-  }));
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: '#f2f2f2',
+    color: '#616161',
+    boxShadow: theme.shadows[1],
+    fontSize: 11,
+    BorderColor: '#cccccc'
+  },
+}));
 
 export default function RegexList(props: RegexProps) {
 
@@ -60,9 +60,9 @@ export default function RegexList(props: RegexProps) {
   console.log("initdata:", initData)
   // const [checked, setChecked] = React.useState("");
 
-  function handleClick(item: any){
+  function handleClick(item: any) {
     window.postMessage({
-      command:"click",
+      command: "click",
       message: item,
     }, "*");
   }
@@ -86,7 +86,7 @@ export default function RegexList(props: RegexProps) {
       >
         <Paper elevation={0} sx={{ width: "100%", backgroundColor: "inherit" }}>
           <FireNav component="nav" disablePadding sx={{ width: "100%" }}>
-            
+
             <Box
               sx={{
                 pb: open ? 0.5 : 0,
@@ -118,37 +118,37 @@ export default function RegexList(props: RegexProps) {
                   }}
                   sx={{ my: 0 }}
                 />
-                
+
               </ListItemButton>
               {open &&
                 initData.map((item) => (
-                    <LightTooltip title={item?.label ? item?.label : item?.re}>
-                        <ListItem
-                            key={item?.label ? item?.label : item?.re}
-                            secondaryAction={
-                                <BpCheckbox
-                                    edge="end"
-                                    onChange={e => props.handleToggle(item)}
-                                    checked={item?.label ? props.checked == item.label : props.checked == item.re}
-                                />
-                            }
-                            disablePadding
-                        >
-                            <ListItemButton
-                                key={item?.label ? item?.label : item?.re}
-                                sx={{ py: 0, minHeight: 20, color: '#616161',width: "100%" }}
-                                onClick={e => handleClick(item)}
-                            >
-                                <ListItemText
-                                    primary={item?.label ? item?.label : item?.re}
-                                    primaryTypographyProps={{ pl:1, fontSize: 12}}
-                                />
-                                {item?.lang ? <VSCodeBadge>{item.lang}</VSCodeBadge> : ""}
-                                
-                                
-                            </ListItemButton>
-                        </ListItem>
-                    </LightTooltip>
+                  <LightTooltip title={item?.label ? item?.label : item?.re}>
+                    <ListItem
+                      key={item?.label ? item?.label : item?.re}
+                      secondaryAction={
+                        <BpCheckbox
+                          edge="end"
+                          onChange={e => props.handleToggle(item)}
+                          checked={item?.label ? props.checked == item.label : props.checked == item.re}
+                        />
+                      }
+                      disablePadding
+                    >
+                      <ListItemButton
+                        key={item?.label ? item?.label : item?.re}
+                        sx={{ py: 0, minHeight: 20, color: '#616161', width: "100%" }}
+                        onClick={e => handleClick(item)}
+                      >
+                        <ListItemText
+                          primary={item?.label ? item?.label : item?.re}
+                          primaryTypographyProps={{ pl: 1, fontSize: 12 }}
+                        />
+                        {item?.lang ? <VSCodeBadge>{item.lang}</VSCodeBadge> : ""}
+
+
+                      </ListItemButton>
+                    </ListItem>
+                  </LightTooltip>
                 ))}
             </Box>
           </FireNav>

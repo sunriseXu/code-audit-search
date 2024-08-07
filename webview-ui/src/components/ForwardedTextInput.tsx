@@ -9,11 +9,11 @@ type Props = {
   onEnter: () => void;
 };
 
-const TextInput:React.ForwardRefRenderFunction<any, Props> = (
-  { label, placeholder, initData, onEnter},
+const TextInput: React.ForwardRefRenderFunction<any, Props> = (
+  { label, placeholder, initData, onEnter },
   ref
 ) => {
-  
+
   const [open, setOpen] = React.useState(false);
 
   const arrowRef = React.useRef(null) as any;
@@ -33,7 +33,7 @@ const TextInput:React.ForwardRefRenderFunction<any, Props> = (
   function handleKeyDown(e: any) {
     if (e.key === 'Enter') {
       onEnter()
-      
+
     }
   }
 
@@ -45,9 +45,9 @@ const TextInput:React.ForwardRefRenderFunction<any, Props> = (
   return (
     <>
       <div className="mydropdown"
-       ref={divRef}
-       style={{width:"100%", maxWidth:"190px", position:"relative"}}>
-        <VSCodeTextField 
+        ref={divRef}
+        style={{ width: "100%", maxWidth: "190px", position: "relative" }}>
+        <VSCodeTextField
           placeholder={placeholder}
           onKeyDown={handleKeyDown}
           ref={ref}
@@ -58,15 +58,15 @@ const TextInput:React.ForwardRefRenderFunction<any, Props> = (
             onClick={() => setOpen(!open)}
             ref={arrowRef}
           > */}
-            <span slot="end" 
-              className={"codicon--chevron-right "+ (open ? "rotate" : "")}
-              onClick={() => setOpen(!open)}
-              ref={arrowRef}
-            ></span>
+          <span slot="end"
+            className={"codicon--chevron-right " + (open ? "rotate" : "")}
+            onClick={() => setOpen(!open)}
+            ref={arrowRef}
+          ></span>
         </VSCodeTextField>
 
-        <ul role="listbox" className={open ? "show": ""}>
-          {initData.map(item=>(
+        <ul role="listbox" className={open ? "show" : ""}>
+          {initData.map(item => (
             <li title={item}
               onClick={() => {
                 handleSelect(item)
@@ -74,11 +74,11 @@ const TextInput:React.ForwardRefRenderFunction<any, Props> = (
               }}
             >{item}</li>
           ))}
-          
-          
+
+
         </ul>
       </div>
-      
+
     </>
   );
 }

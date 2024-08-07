@@ -3,27 +3,27 @@ import { getFileName, genLabel } from '../../utilities/oneUtils';
 import { LocalStorageService } from '../../utilities/localStorageService';
 import { RegexRaw } from '../../utilities/RTpyes';
 export class TodoView implements vscode.TreeDataProvider<Node> {
-	
+
 	private _onDidChangeTreeData: vscode.EventEmitter<Node | undefined | void> = new vscode.EventEmitter<Node | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<Node | undefined | void> = this._onDidChangeTreeData.event;
 	private rootPath: string = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 		? vscode.workspace.workspaceFolders[0].uri.fsPath : "";
-	
-	
+
+
 	private regex: string = ""
 	public tree: any = {}
 	private storageManager?: LocalStorageService;
-	
+
 	private isStored: boolean = false
 	private origin: any = {}
 	private regexRaw: RegexRaw = {} as RegexRaw;
 
 	constructor(context: vscode.ExtensionContext) {
 		this.storageManager = new LocalStorageService(context.workspaceState);
-		
+
 		const view = vscode.window.createTreeView('AuditSearch.todoView', { treeDataProvider: this, showCollapseAll: true, canSelectMany: true });
 		context.subscriptions.push(view);
-		
+
 		context.subscriptions.push(
 			vscode.commands.registerCommand('AuditSearch.initTodoView', (data, regexRaw) => this.setData(data, regexRaw))
 		)
@@ -45,17 +45,17 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 			vscode.commands.registerCommand('AuditSearch.saveTodo', () => this.saveData())
 		)
 
-		
+
 	}
 
 	refresh(): void {
-        this._onDidChangeTreeData.fire();
-    }
+		this._onDidChangeTreeData.fire();
+	}
 
 	saveData(): void {
 		this.isStored = true;
-		if(this.regex){
-			this.storageManager?.setValue(this.regex, 
+		if (this.regex) {
+			this.storageManager?.setValue(this.regex,
 				{
 					regexRaw: this.regexRaw,
 					tree: this.tree
@@ -67,7 +67,7 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 
 	deleteAllData(): void {
 		this.isStored = false;
-		if(this.regex){
+		if (this.regex) {
 			this.storageManager?.setValue(this.regex, undefined)
 		}
 	}
@@ -80,47 +80,47 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 		// get previous stored data
 		var localData: any = this.storageManager?.getValue(this.regex)
 		// if exist, then we load stored data instead of search results
-		if(localData){
+		if (localData) {
 			this.tree = localData?.tree;
 			this.isStored = true;
-		}else{
+		} else {
 			// if not exits
-			if(this.isStored){
+			if (this.isStored) {
 				// we store the results
 				this.storageManager?.setValue(this.regex, data)
 			}
 			// if no store, we just use memory
 			this.tree = data;
 		}
-		
-        this.refresh();
 
-    }
+		this.refresh();
+
+	}
 
 
-	deleteItem(item: any): void{
+	deleteItem(item: any): void {
 		let filePath = item.filePath
 		let hash = item.hash
 
-		if(filePath==''){
+		if (filePath == '') {
 			//delete all item in file
 			delete this.tree[hash]
-		}else{
+		} else {
 			//delete single item
 			delete this.tree[filePath][hash]
-			if(Object.keys(this.tree[filePath]).length == 0)
+			if (Object.keys(this.tree[filePath]).length == 0)
 				delete this.tree[filePath]
 		}
 
-		if(this.isStored){
-			this.storageManager?.setValue(this.regex, 
+		if (this.isStored) {
+			this.storageManager?.setValue(this.regex,
 				{
 					regexRaw: this.regexRaw,
 					tree: this.tree
 				}
 			)
 		}
-		
+
 		vscode.commands.executeCommand('AuditSearch.updateDeletedView', this.tree)
 		this.refresh();
 	}
@@ -130,12 +130,10 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 
 		var pos1 = new vscode.Position(parseInt(lineNum) - 1, startIdx);
 		var pos2 = new vscode.Position(parseInt(lineNum) - 1, lastIdx);
-		vscode.workspace.openTextDocument(resource).then(doc => 
-		{
-			vscode.window.showTextDocument(doc).then(editor => 
-			{
+		vscode.workspace.openTextDocument(resource).then(doc => {
+			vscode.window.showTextDocument(doc).then(editor => {
 				// Line added - by having a selection at the same position twice, the cursor jumps there
-				editor.selections = [new vscode.Selection(pos1,pos1)]; 
+				editor.selections = [new vscode.Selection(pos1, pos1)];
 
 				// And the visible range jumps there too
 				var range = new vscode.Range(pos1, pos2);
@@ -153,7 +151,7 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 	public getTreeItem(element: Node): vscode.TreeItem {
 		return element;
 	}
-	
+
 
 	dispose(): void {
 		// nothing to disposes
@@ -163,25 +161,25 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 		if (!element) {
 			// the folder: fileName, filePath
 			// label = fileName; description = filepath
-			
+
 			return Object.keys(this.tree).map(filepath => {
 				const [basename, dirname] = getFileName(filepath, this.rootPath)
-				return this.toNode(basename, vscode.TreeItemCollapsibleState.Expanded, filepath, dirname, "",0,0, "")
+				return this.toNode(basename, vscode.TreeItemCollapsibleState.Expanded, filepath, dirname, "", 0, 0, "")
 			}
 			);
 		}
 		if (this.tree[element.hash]) {
 			// the search results: mstring, ""
-			return Object.keys(this.tree[element.hash]).map(hash => 
+			return Object.keys(this.tree[element.hash]).map(hash =>
 				this.toNode(
 					genLabel(
 						this.tree[element.hash][hash]['mString'],
 						this.tree[element.hash][hash]['startIdx'],
 						this.tree[element.hash][hash]['lastIdx']
-					), 
-					vscode.TreeItemCollapsibleState.None, 
-					hash, 
-					'', 
+					),
+					vscode.TreeItemCollapsibleState.None,
+					hash,
+					'',
 					this.tree[element.hash][hash]['lineNum'],
 					this.tree[element.hash][hash]['startIdx'],
 					this.tree[element.hash][hash]['lastIdx'],
@@ -193,16 +191,16 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 	}
 
 	toNode(label: string, collaps: vscode.TreeItemCollapsibleState, hash: string, description: string, lineNum: string, startIdx: number, lastIdx: number, filePath: string): Node {
-		if(lineNum){
-			return new Node(label, collaps, hash, description, lineNum, startIdx, lastIdx, filePath, { 
-				command: 'AuditSearch.openFile', 
-				title: "Open File", 
-				arguments: [vscode.Uri.file(filePath),lineNum, startIdx, lastIdx], 
+		if (lineNum) {
+			return new Node(label, collaps, hash, description, lineNum, startIdx, lastIdx, filePath, {
+				command: 'AuditSearch.openFile',
+				title: "Open File",
+				arguments: [vscode.Uri.file(filePath), lineNum, startIdx, lastIdx],
 			});
 		}
 		return new Node(label, collaps, hash, description, lineNum, 0, 0, filePath);
-		
-		
+
+
 	};
 
 }
@@ -223,12 +221,12 @@ export class Node extends vscode.TreeItem {
 	) {
 		super(label, collapsibleState);
 		this.id = hash;
-		if(lineNum){
+		if (lineNum) {
 			this.tooltip = `${this.label?.label}`;
-		}else{
+		} else {
 			this.tooltip = hash;
 		}
-		
+
 		// this.description = this.label;
 	}
 

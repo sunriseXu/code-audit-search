@@ -145,7 +145,7 @@ export async function multiStepInput(context: ExtensionContext) {
 		return name === 'vscode' ? 'Name not unique' : undefined;
 	}
 
-	async function validateNameIsEmpty(name:string) {
+	async function validateNameIsEmpty(name: string) {
 		return name === '' ? 'Empty string not allowed' : undefined
 	}
 

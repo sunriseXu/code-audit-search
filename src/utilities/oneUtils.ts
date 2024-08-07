@@ -25,25 +25,25 @@ export const splitLines = (lines: string) => {
 
 
 export const splitLine = (line: string, regex: string) => {
-    
+
     var fidx = line.indexOf(":");
-    var sidx = line.indexOf(":", fidx+1);
+    var sidx = line.indexOf(":", fidx + 1);
     var filePath = line.substring(0, fidx);
-    var lineNum = line.substring(fidx+1, sidx);
-    var mString = line.substring(sidx+1, line.length)
-    
+    var lineNum = line.substring(fidx + 1, sidx);
+    var mString = line.substring(sidx + 1, line.length)
+
     if (!parseInt(lineNum))
         return false
 
-    var regexp = RegExp(regex,'g')
+    var regexp = RegExp(regex, 'g')
     var result = regexp.exec(mString)
     var startIdx = result?.index
     var lastIdx = regexp.lastIndex
 
     var tmp = filePath + ':' + lineNum + ':' + mString
     var hash = md5(tmp)
-    
-    
+
+
     return {
         [filePath]: {
             [hash]: {
@@ -58,11 +58,11 @@ export const splitLine = (line: string, regex: string) => {
 
 export const genLabel = (label: string, startIdx: number, lastIdx: number) => {
     var i, frontSpaceLen = 0;
-    for(i = 0; i < label.length; i++){
-        if(label.charAt(i)==' '){
+    for (i = 0; i < label.length; i++) {
+        if (label.charAt(i) == ' ') {
             frontSpaceLen += 1;
             continue;
-        } 
+        }
         break
     }
     return <any>{ label: label.trim(), highlights: [[startIdx - frontSpaceLen, lastIdx - frontSpaceLen]] }
@@ -73,10 +73,10 @@ export const mergeMap = (treeMap: Object, item: Object) => {
 
 }
 
-export const countResults = (treeMap: Object) =>{
+export const countResults = (treeMap: Object) => {
     var fileLen = Object.keys(treeMap).length
     var resultLen = 0
-    for(var filePath of Object.keys(treeMap)){
+    for (var filePath of Object.keys(treeMap)) {
         resultLen += Object.keys(treeMap[filePath as keyof typeof treeMap]).length
     }
     return {
@@ -90,16 +90,16 @@ export const countResults = (treeMap: Object) =>{
 export const difference = (obj1: any, obj2: any) => {
     let result: any = {}
     for (var filePath of Object.keys(obj1)) {
-        if(!(filePath in obj2)){
+        if (!(filePath in obj2)) {
             result[filePath] = obj1[filePath]
-        }else{
-            var tmp:any = {}
-            for(var hash of Object.keys(obj1[filePath])){
-                if(!(hash in obj2[filePath])){
+        } else {
+            var tmp: any = {}
+            for (var hash of Object.keys(obj1[filePath])) {
+                if (!(hash in obj2[filePath])) {
                     tmp[hash] = obj1[filePath][hash]
                 }
             }
-            if(Object.keys(tmp).length > 0){
+            if (Object.keys(tmp).length > 0) {
                 result[filePath] = tmp
             }
         }
@@ -113,8 +113,8 @@ export function clone(a: Object) {
 export const getFileName = (filePath: string, workspacePath: string) => {
     let basename = path.basename(filePath);
     let dirname = path.resolve(path.dirname(filePath));
-    if(dirname.startsWith(workspacePath)){
-        dirname = dirname.replace(workspacePath+path.sep, "")
+    if (dirname.startsWith(workspacePath)) {
+        dirname = dirname.replace(workspacePath + path.sep, "")
     }
     return [basename, dirname]
 
@@ -127,16 +127,16 @@ export const parseYaml = (filePath: string) => {
 
 
 export const parseRegex = (data: RegexRaw, workspaceDir: string) => {
-    let regex = data.re.replaceAll('"','\\x22')
-                .replaceAll("'","\\x27").replaceAll("`","\\x60")
-    let includes = data.include?data.include.split(',').map(item => item.trim()):[]
-    let excludes = data.exclude?data.exclude.split(',').map(item => item.trim()):[]
-    let excludeDirs = data.excludeDir?data.excludeDir.split(',').map(item => item.trim()):[]
+    let regex = data.re.replaceAll('"', '\\x22')
+        .replaceAll("'", "\\x27").replaceAll("`", "\\x60")
+    let includes = data.include ? data.include.split(',').map(item => item.trim()) : []
+    let excludes = data.exclude ? data.exclude.split(',').map(item => item.trim()) : []
+    let excludeDirs = data.excludeDir ? data.excludeDir.split(',').map(item => item.trim()) : []
 
     // grep -P '\([\x22\x27\x60]' -rno  ./ --include="*.js" --exclude="*.min.js" --exclude-dir="node_modules*"
-    let includeCmd = includes.reduce((partial, item) => partial + ` --include="${item.replaceAll('"',"")}"`, "")
-    let excludeCmd = excludes.reduce((partial, item) => partial + ` --exclude="${item.replaceAll('"',"")}"`, "")
-    let excludeDirCmd = excludeDirs.reduce((partial, item) => partial + ` --exclude-dir="${item.replaceAll('"',"")}"`, "")
+    let includeCmd = includes.reduce((partial, item) => partial + ` --include="${item.replaceAll('"', "")}"`, "")
+    let excludeCmd = excludes.reduce((partial, item) => partial + ` --exclude="${item.replaceAll('"', "")}"`, "")
+    let excludeDirCmd = excludeDirs.reduce((partial, item) => partial + ` --exclude-dir="${item.replaceAll('"', "")}"`, "")
     let cmd = `grep -P '${regex}' -rn ${workspaceDir} ${includeCmd} ${excludeCmd} ${excludeDirCmd} 2>&-`
     return {
         re: regex,

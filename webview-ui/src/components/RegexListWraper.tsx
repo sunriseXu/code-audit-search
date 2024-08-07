@@ -4,8 +4,8 @@ import * as React from 'react';
 import { vscode } from "../utilities/vscode";
 
 type propsType = {
-    initData: RegexModel
-  }
+  initData: RegexModel
+}
 
 function RegexListWraper(props: propsType) {
   const [checked, setChecked] = React.useState("");
@@ -17,36 +17,36 @@ function RegexListWraper(props: propsType) {
   React.useEffect(() => {
     const handleWebviewEvents = (event: any) => {
       console.log("new event", event)
-      switch(event.data.command){
+      switch (event.data.command) {
         case "localData":
-            let regexRaws = event.data.message;
-            console.log("regexRaws:",regexRaws)
-            setLocalSearch(regexRaws)
-            break;
+          let regexRaws = event.data.message;
+          console.log("regexRaws:", regexRaws)
+          setLocalSearch(regexRaws)
+          break;
         case "globalData":
-            let globalregexRaws = event.data.message;
-            console.log("globalData:",globalregexRaws)
-            setGlobalSearch(globalregexRaws)
-            break;
+          let globalregexRaws = event.data.message;
+          console.log("globalData:", globalregexRaws)
+          setGlobalSearch(globalregexRaws)
+          break;
       }
     }
 
     vscode.postMessage({
-        command: "initLocal"
-      });
+      command: "initLocal"
+    });
 
     window.addEventListener("message", handleWebviewEvents)
     return () => window.removeEventListener('message', handleWebviewEvents)
   }, []);
 
-  function handleToggle(item:any){
-    if(item?.label == checked || item?.re == checked){
+  function handleToggle(item: any) {
+    if (item?.label == checked || item?.re == checked) {
       setChecked("")
       return
     }
     setChecked(item?.label ? item?.label : item?.re);
     window.postMessage({
-      command:"click",
+      command: "click",
       message: item,
       search: true
     }, "*");
@@ -54,31 +54,31 @@ function RegexListWraper(props: propsType) {
 
   return (
     <>
-        {/* local search  */}
-        <RegexList 
-            type="Saved Search" 
-            initData={localSearch} 
-            checked={checked} 
-            handleToggle={handleToggle}
-        />
-        {/* custom saved regex  */}
-        <RegexList 
-            type="Custom Search" 
-            initData={globalSearch} 
-            checked={checked} 
-            handleToggle={handleToggle}
-        />
-        {
+      {/* local search  */}
+      <RegexList
+        type="Saved Search"
+        initData={localSearch}
+        checked={checked}
+        handleToggle={handleToggle}
+      />
+      {/* custom saved regex  */}
+      <RegexList
+        type="Custom Search"
+        initData={globalSearch}
+        checked={checked}
+        handleToggle={handleToggle}
+      />
+      {
         Object.keys(props.initData).map(key => (
-            <RegexList 
-            type={key} 
-            initData={props.initData[key]} 
-            checked={checked} 
+          <RegexList
+            type={key}
+            initData={props.initData[key]}
+            checked={checked}
             handleToggle={handleToggle}
-            />
-            )
+          />
         )
-        }
+        )
+      }
     </>
   );
 }

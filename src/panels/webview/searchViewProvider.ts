@@ -10,21 +10,21 @@ import { RegexRaw } from "../../utilities/RTpyes";
 
 export class SearchViewProvider implements vscode.WebviewViewProvider {
 
-	public static readonly viewType = 'AuditSearch.searchView';
+    public static readonly viewType = 'AuditSearch.searchView';
 
-	private _view?: vscode.WebviewView;
+    private _view?: vscode.WebviewView;
 
     private storageManager?: LocalStorageService;
     private globalStorageManager?: GlobalStorageService;
 
     private regexRaw?: RegexRaw;
 
-	constructor(
-		private readonly _extensionUri: vscode.Uri,
+    constructor(
+        private readonly _extensionUri: vscode.Uri,
         private readonly context: vscode.ExtensionContext,
-	) { 
+    ) {
         this.storageManager = new LocalStorageService(this.context.workspaceState);
-		this.globalStorageManager = new GlobalStorageService(this.context.globalState);
+        this.globalStorageManager = new GlobalStorageService(this.context.globalState);
 
         // save this search in current workspace, in local storage
         // saved search
@@ -33,8 +33,8 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
         // user click save button, execute the save function.
 
         context.subscriptions.push(
-			vscode.commands.registerCommand('AuditSearch.updateLocalData', () => this.updateLocalData())
-		)
+            vscode.commands.registerCommand('AuditSearch.updateLocalData', () => this.updateLocalData())
+        )
 
         // save this regex globally, in global storage
         // custom regex
@@ -44,14 +44,14 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
         );
 
         // context.subscriptions.push(
-		// 	vscode.commands.registerCommand('AuditSearch.updateGlobalData', () => this.updateGlobalData())
-		// )
+        // 	vscode.commands.registerCommand('AuditSearch.updateGlobalData', () => this.updateGlobalData())
+        // )
 
     }
 
-    public updateLocalData(){
+    public updateLocalData() {
         let allLocalData = this.storageManager?.getAllData()
-        let allLocalSearch = allLocalData?.map( (item: any) => {
+        let allLocalSearch = allLocalData?.map((item: any) => {
             return item?.regexRaw
         })
         allLocalSearch = allLocalSearch?.filter(element => {
@@ -59,74 +59,75 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
         })
 
         this._view?.webview.postMessage({
-            command:"localData",
+            command: "localData",
             message: allLocalSearch,
-          });
+        });
     }
 
-    public updateGlobalData(){
+    public updateGlobalData() {
         let allGlobalData = this.globalStorageManager?.getAllData()
-        allGlobalData = allGlobalData?.filter((element:any) => {
+        allGlobalData = allGlobalData?.filter((element: any) => {
             return element?.hasOwnProperty("label")
         })
-        
+
         this._view?.webview.postMessage({
-            command:"globalData",
+            command: "globalData",
             message: allGlobalData,
-          });
-        
+        });
+
     }
 
-    public async showInput(){
+    public async showInput() {
         const state = await multiStepInput(this.context)
         let label = state?.label.trim()
         let lang = state?.lang
-        if(!label||!this.regexRaw?.re.trim()){
+        if (!label || !this.regexRaw?.re.trim()) {
             vscode.window.showInformationMessage("Failed, please make sure `tag` or `regex` is not blank")
             return;
         }
         this.globalStorageManager?.setValue(label, {
-            label: label, 
-            lang: lang, 
-            ...this.regexRaw}
+            label: label,
+            lang: lang,
+            ...this.regexRaw
+        }
         )
         this.updateGlobalData()
     }
 
-	public resolveWebviewView(
-		webviewView: vscode.WebviewView,
-		context: vscode.WebviewViewResolveContext,
-		_token: vscode.CancellationToken,
-	) {
-		this._view = webviewView;
+    public resolveWebviewView(
+        webviewView: vscode.WebviewView,
+        context: vscode.WebviewViewResolveContext,
+        _token: vscode.CancellationToken,
+    ) {
+        this._view = webviewView;
 
-		webviewView.webview.options = {
-			// Allow scripts in the webview
-			enableScripts: true,
+        webviewView.webview.options = {
+            // Allow scripts in the webview
+            enableScripts: true,
 
-			localResourceRoots: [
-				this._extensionUri
-			]
-		};
+            localResourceRoots: [
+                this._extensionUri
+            ]
+        };
 
-		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+        webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
 
         this.updateLocalData()
         this.updateGlobalData()
 
-		webviewView.webview.onDidReceiveMessage(async data => {
+        webviewView.webview.onDidReceiveMessage(async data => {
 
-			switch (data.command) {
+            switch (data.command) {
                 case "initLocal":
                     this.updateLocalData();
                     this.updateGlobalData();
                     break;
                 case "search":
-                    if(vscode.workspace.workspaceFolders !== undefined) {
+                    if (vscode.workspace.workspaceFolders !== undefined) {
                         let wf = vscode.workspace.workspaceFolders[0].uri.path;
                         this.regexRaw = data.obj;
-                        
+
                         let regexObj = parseRegex(data.obj, wf);
 
                         console.log("regex obj:", regexObj)
@@ -135,60 +136,60 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
                             var mergedMap = {}
                             // parse the results
                             var lines = splitLines(res)
-                            for (var line of lines){
-                                if(!line.trim())
+                            for (var line of lines) {
+                                if (!line.trim())
                                     continue
                                 var lineObj = splitLine(line, regexObj.re);
                                 mergedMap = mergeMap(mergedMap, lineObj)
-                                
+
                             }
 
                             let resultCountObj = countResults(mergedMap)
                             webviewView.webview.postMessage({
-                                command:"result",
+                                command: "result",
                                 message: `${resultCountObj.resultLen} results in ${resultCountObj.fileLen} files`,
-                              });
+                            });
 
                             // check if saved
                             // 1. fetch from local storage
                             // 2. compare storage with the results
-                            
+
                             //show result
                             vscode.commands.executeCommand('AuditSearch.initTodoView', mergedMap, data.obj)
                             vscode.commands.executeCommand('AuditSearch.initDeletedView', mergedMap, data.obj)
                         } catch (e) {
                             webviewView.webview.postMessage({
-                                command:"result",
-                                message:"no results found",
-                              });
+                                command: "result",
+                                message: "no results found",
+                            });
                             vscode.commands.executeCommand('AuditSearch.initTodoView', {}, data.obj)
                             vscode.commands.executeCommand('AuditSearch.initDeletedView', {}, data.obj)
                         }
-                        
-                    } 
+
+                    }
                     else {
-                        let message = "YOUR-EXTENSION: Working folder not found, open a folder an try again" ;
-                    
+                        let message = "YOUR-EXTENSION: Working folder not found, open a folder an try again";
+
                         vscode.window.showErrorMessage(message);
                     }
                     break;
-			}
-		});
-	}
+            }
+        });
+    }
 
-	private _getHtmlForWebview(webview: vscode.Webview) {
-		// The CSS file from the React build output
+    private _getHtmlForWebview(webview: vscode.Webview) {
+        // The CSS file from the React build output
         const stylesUri = getUri(webview, this._extensionUri, ["webview-ui", "build", "assets", "index.css"]);
         // The JS file from the React build output
         const scriptUri = getUri(webview, this._extensionUri, ["webview-ui", "build", "assets", "index.js"]);
-    
+
         // const iconStyleUri = getUri(webview, this._extensionUri, ["webview-ui", "node_modules", '@vscode/codicons', 'dist', 'codicon.css']);
-    
-		// Use a nonce to only allow a specific script to be run.
-		const nonce = getNonce();
+
+        // Use a nonce to only allow a specific script to be run.
+        const nonce = getNonce();
         //<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';font-src ${webview.cspSource};">
 
-		return `
+        return `
             <!DOCTYPE html>
             <html lang="en">
                 <head>
@@ -203,5 +204,5 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
                 </body>
             </html>
             `;
-	}
+    }
 }

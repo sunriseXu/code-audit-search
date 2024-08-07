@@ -4,14 +4,14 @@ import { getFileName, difference, clone, genLabel } from '../../utilities/oneUti
 import { RegexRaw } from '../../utilities/RTpyes';
 
 export class DeletedView implements vscode.TreeDataProvider<Node> {
-	
+
 	private _onDidChangeTreeData: vscode.EventEmitter<Node | undefined | void> = new vscode.EventEmitter<Node | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<Node | undefined | void> = this._onDidChangeTreeData.event;
 	private rootPath: string = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 		? vscode.workspace.workspaceFolders[0].uri.fsPath : "";
-	
-	
-	
+
+
+
 	private regex: string = ""
 	public tree: any = {}
 	private origin: any = {}
@@ -23,7 +23,7 @@ export class DeletedView implements vscode.TreeDataProvider<Node> {
 		this.storageManager = new LocalStorageService(context.workspaceState);
 		const view = vscode.window.createTreeView('AuditSearch.deletedView', { treeDataProvider: this, showCollapseAll: true, canSelectMany: true });
 		context.subscriptions.push(view);
-		
+
 		// init item
 		context.subscriptions.push(
 			vscode.commands.registerCommand('AuditSearch.initDeletedView', (origin, regexRaw) => this.setData(origin, regexRaw))
@@ -36,8 +36,8 @@ export class DeletedView implements vscode.TreeDataProvider<Node> {
 	}
 
 	refresh(): void {
-        this._onDidChangeTreeData.fire();
-    }
+		this._onDidChangeTreeData.fire();
+	}
 
 	setData(origin: any, regexRaw: RegexRaw): void {
 		this.regexRaw = regexRaw;
@@ -47,21 +47,21 @@ export class DeletedView implements vscode.TreeDataProvider<Node> {
 		// get previous stored data
 		let localData: any = this.storageManager?.getValue(this.regex)
 		// if exist, then we load stored data instead of search results
-		if(localData?.tree){
+		if (localData?.tree) {
 			this.tree = difference(this.origin, localData?.tree);
 			this.isStored = true;
-		}else{
+		} else {
 			this.tree = {};
 		}
-		
-        this.refresh();
-    }
+
+		this.refresh();
+	}
 
 
-	updateItem(data: any): void{
+	updateItem(data: any): void {
 
 		this.tree = difference(this.origin, data);
-		
+
 		this.refresh();
 	}
 
@@ -73,7 +73,7 @@ export class DeletedView implements vscode.TreeDataProvider<Node> {
 	public getTreeItem(element: Node): vscode.TreeItem {
 		return element;
 	}
-	
+
 
 	dispose(): void {
 		// nothing to dispose
@@ -83,25 +83,25 @@ export class DeletedView implements vscode.TreeDataProvider<Node> {
 		if (!element) {
 			// the folder: fileName, filePath
 			// label = fileName; description = filepath
-			
+
 			return Object.keys(this.tree).map(filepath => {
 				const [basename, dirname] = getFileName(filepath, this.rootPath)
-				return this.toNode(basename, vscode.TreeItemCollapsibleState.Expanded, filepath, dirname, "",0,0, "")
+				return this.toNode(basename, vscode.TreeItemCollapsibleState.Expanded, filepath, dirname, "", 0, 0, "")
 			}
 			);
 		}
 		if (this.tree[element.hash]) {
 			// the search results: mstring, ""
-			return Object.keys(this.tree[element.hash]).map(hash => 
+			return Object.keys(this.tree[element.hash]).map(hash =>
 				this.toNode(
 					genLabel(
 						this.tree[element.hash][hash]['mString'],
 						this.tree[element.hash][hash]['startIdx'],
 						this.tree[element.hash][hash]['lastIdx']
-					), 
-					vscode.TreeItemCollapsibleState.None, 
-					hash, 
-					'', 
+					),
+					vscode.TreeItemCollapsibleState.None,
+					hash,
+					'',
 					this.tree[element.hash][hash]['lineNum'],
 					this.tree[element.hash][hash]['startIdx'],
 					this.tree[element.hash][hash]['lastIdx'],
@@ -113,16 +113,16 @@ export class DeletedView implements vscode.TreeDataProvider<Node> {
 	}
 
 	toNode(label: string, collaps: vscode.TreeItemCollapsibleState, hash: string, description: string, lineNum: string, startIdx: number, lastIdx: number, filePath: string): Node {
-		if(lineNum){
-			return new Node(label, collaps, hash, description, lineNum, startIdx, lastIdx, filePath, { 
-				command: 'AuditSearch.openFile', 
-				title: "Open File", 
-				arguments: [vscode.Uri.file(filePath),lineNum, startIdx, lastIdx], 
+		if (lineNum) {
+			return new Node(label, collaps, hash, description, lineNum, startIdx, lastIdx, filePath, {
+				command: 'AuditSearch.openFile',
+				title: "Open File",
+				arguments: [vscode.Uri.file(filePath), lineNum, startIdx, lastIdx],
 			});
 		}
 		return new Node(label, collaps, hash, description, lineNum, 0, 0, filePath);
-		
-		
+
+
 	};
 
 }
@@ -143,12 +143,12 @@ export class Node extends vscode.TreeItem {
 	) {
 		super(label, collapsibleState);
 		this.id = hash;
-		if(lineNum){
+		if (lineNum) {
 			this.tooltip = `${this.label?.label}`;
-		}else{
+		} else {
 			this.tooltip = hash;
 		}
-		
+
 		// this.description = this.label;
 	}
 
