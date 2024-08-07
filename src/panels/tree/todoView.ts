@@ -68,6 +68,7 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 		this.isStored = false;
 		if (this.regex) {
 			this.storageManager?.setValue(this.regex, undefined)
+			vscode.commands.executeCommand('AuditSearch.updateLocalData')
 		}
 	}
 
