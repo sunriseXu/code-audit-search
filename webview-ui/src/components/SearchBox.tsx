@@ -1,5 +1,6 @@
 import { vscode } from "../utilities/vscode";
 import { VSCodeTextField, VSCodeDivider } from "@vscode/webview-ui-toolkit/react";
+import LinearProgress from '@mui/material/LinearProgress';
 import * as React from 'react';
 import ForwardedTextInput from "./ForwardedTextInput";
 import { ReSelectOptions } from "../utilities/types/RTpyes";
@@ -13,6 +14,8 @@ export function SearchBox(props: propsType) {
   const [searchRes, setSearchRes] = React.useState<string>('');
 
   const [isRes, setIsRes] = React.useState<boolean>(false);
+
+  const [isEnter, setIsEnter] = React.useState<boolean>(false);
 
   const reRef = React.useRef(null) as any;
 
@@ -30,6 +33,7 @@ export function SearchBox(props: propsType) {
           let message = event.data.message;
           setSearchRes(message)
           setIsRes(true)
+          setIsEnter(false)
           break;
         case "click":
           let initData = event.data.message;
@@ -50,6 +54,8 @@ export function SearchBox(props: propsType) {
     console.log("enter called")
     console.log("current value:",includeRef)
     console.log("current value:",includeRef.current.value)
+    setIsRes(false)
+    setIsEnter(true)
     let re = reRef.current.value;
     let include = includeRef.current.value;
     let exclude = excludeRef.current.value;
@@ -116,7 +122,11 @@ export function SearchBox(props: propsType) {
         initData={props.data.excludeDirs}
         onEnter={handleEnter}
       />
-      {isRes?(<div className="">{searchRes}</div>):""}
+      {isRes ? 
+        (<div className="">{searchRes}</div>) :
+        isEnter ? (<LinearProgress sx={{ width: '100%', height:"3px",marginTop:"3px" }}/>) :
+        ""
+      }
       <VSCodeDivider></VSCodeDivider>
       
     </>

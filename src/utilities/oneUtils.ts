@@ -134,9 +134,9 @@ export const parseRegex = (data: RegexRaw, workspaceDir: string) => {
     let excludeDirs = data.excludeDir?data.excludeDir.split(',').map(item => item.trim()):[]
 
     // grep -P '\([\x22\x27\x60]' -rno  ./ --include="*.js" --exclude="*.min.js" --exclude-dir="node_modules*"
-    let includeCmd = includes.reduce((partial, item) => partial + ` --include="${item}"`, "")
-    let excludeCmd = excludes.reduce((partial, item) => partial + ` --exclude="${item}"`, "")
-    let excludeDirCmd = excludeDirs.reduce((partial, item) => partial + ` --exclude-dir="${item}"`, "")
+    let includeCmd = includes.reduce((partial, item) => partial + ` --include="${item.replaceAll('"',"")}"`, "")
+    let excludeCmd = excludes.reduce((partial, item) => partial + ` --exclude="${item.replaceAll('"',"")}"`, "")
+    let excludeDirCmd = excludeDirs.reduce((partial, item) => partial + ` --exclude-dir="${item.replaceAll('"',"")}"`, "")
     let cmd = `grep -P '${regex}' -rn ${workspaceDir} ${includeCmd} ${excludeCmd} ${excludeDirCmd} 2>&-`
     return {
         re: regex,
