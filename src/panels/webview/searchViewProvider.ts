@@ -43,10 +43,6 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
             vscode.commands.registerCommand('AuditSearch.quickInput', async () => this.showInput())
         );
 
-        // context.subscriptions.push(
-        // 	vscode.commands.registerCommand('AuditSearch.updateGlobalData', () => this.updateGlobalData())
-        // )
-
     }
 
     public updateLocalData() {
@@ -82,7 +78,7 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
         let label = state?.label.trim()
         let lang = state?.lang
         if (!label || !this.regexRaw?.re.trim()) {
-            vscode.window.showInformationMessage("Failed, please make sure `tag` or `regex` is not blank")
+            vscode.window.showErrorMessage("Code-Audit-Search: Failed, please make sure `tag` or `regex` is not blank")
             return;
         }
         this.globalStorageManager?.setValue(label, {
@@ -92,6 +88,7 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
         }
         )
         this.updateGlobalData()
+        vscode.window.showInformationMessage(`Code-Audit-Search: Save regex ${label} successfully`)
     }
 
     public resolveWebviewView(
@@ -140,6 +137,9 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
                                 if (!line.trim())
                                     continue
                                 var lineObj = splitLine(line, regexObj.re);
+                                if (!lineObj) {
+                                    continue;
+                                }
                                 mergedMap = mergeMap(mergedMap, lineObj)
 
                             }
@@ -165,11 +165,9 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
                             vscode.commands.executeCommand('AuditSearch.initTodoView', {}, data.obj)
                             vscode.commands.executeCommand('AuditSearch.initDeletedView', {}, data.obj)
                         }
-
                     }
                     else {
-                        let message = "YOUR-EXTENSION: Working folder not found, open a folder an try again";
-
+                        let message = "Code-Audit-Search: Working folder not found, open a folder an try again";
                         vscode.window.showErrorMessage(message);
                     }
                     break;
@@ -182,9 +180,6 @@ export class SearchViewProvider implements vscode.WebviewViewProvider {
         const stylesUri = getUri(webview, this._extensionUri, ["webview-ui", "build", "assets", "index.css"]);
         // The JS file from the React build output
         const scriptUri = getUri(webview, this._extensionUri, ["webview-ui", "build", "assets", "index.js"]);
-
-        // const iconStyleUri = getUri(webview, this._extensionUri, ["webview-ui", "node_modules", '@vscode/codicons', 'dist', 'codicon.css']);
-
         // Use a nonce to only allow a specific script to be run.
         const nonce = getNonce();
         //<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';font-src ${webview.cspSource};">

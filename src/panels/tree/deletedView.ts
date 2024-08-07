@@ -10,8 +10,6 @@ export class DeletedView implements vscode.TreeDataProvider<Node> {
 	private rootPath: string = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 		? vscode.workspace.workspaceFolders[0].uri.fsPath : "";
 
-
-
 	private regex: string = ""
 	public tree: any = {}
 	private origin: any = {}
