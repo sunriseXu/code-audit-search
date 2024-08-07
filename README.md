@@ -25,14 +25,14 @@ _or_
 | `rubyTempStr`  | xss |  %Q?([^a-zA-Z\d\s])[\s\S]{0,50}?<[\s\S]{0,50}?#\\{[\s\S]{1,50}?\\}[\s\S]{0,50}?> |ruby template strings for raw html tags |
 | `untarPython`  | traversal |  \\.extractall\\([\s\S]{0,100}?\\) |find extractor isuue, such as symlink to arbitrary file read |
 
-![demo1](https://github.com/user-attachments/assets/4c403068-d705-41a7-bdf1-31a481395720)
+![built-in-regex](https://live.staticflickr.com/65535/53907668594_cfdd29f078_o_d.gif)
 
 
 ### Save and Resume Your Searching
 
 In `TODO VIEW`, click `save this search results` button, the search results will be saved in current workspace. You can delete the not interesting results during code audit. You can resume your auditing progress any time by clicking item in `Saved Search` tab.
 
-![save-and-resume](https://github.com/user-attachments/assets/c12d8759-0420-475d-86ac-0bbd78666ab1)
+![save-and-resume](https://live.staticflickr.com/65535/53907377491_1ffac04478_o_d.gif)
 
 
 
@@ -40,5 +40,5 @@ In `TODO VIEW`, click `save this search results` button, the search results will
 
 Besides built-in regexs, you can build your custom regexs accross different workspaces. Just click `save this regex globally`, you will be prompted to fill in regex tag name and which language to use. You can find your custom regexs in `Custom Search` Tab.
 
-![save-regex](https://github.com/user-attachments/assets/f575951e-ea5e-439d-9da9-de2b7d09f496)
+![save-regex](https://live.staticflickr.com/65535/53907378756_4058c4e132_o_d.gif)
 
