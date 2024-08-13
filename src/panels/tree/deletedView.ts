@@ -24,7 +24,7 @@ export class DeletedView implements vscode.TreeDataProvider<Node> {
 
 		// init item
 		context.subscriptions.push(
-			vscode.commands.registerCommand('AuditSearch.initDeletedView', (origin, regexRaw) => this.setData(origin, regexRaw))
+			vscode.commands.registerCommand('AuditSearch.initDeletedView', (origin, regexRaw) => this.setData2(origin, regexRaw))
 		)
 
 		// update item
@@ -55,11 +55,28 @@ export class DeletedView implements vscode.TreeDataProvider<Node> {
 		this.refresh();
 	}
 
+	setData2(origin: any, regexRaw: RegexRaw): void {
+		this.regexRaw = regexRaw;
+		this.regex = regexRaw.re;
+		this.origin = clone(origin);
+
+		// get previous stored data
+		let localData: any = this.storageManager?.getValue(this.regex)
+		// if exist, then we load stored data instead of search results
+		if (localData?.tree) {
+			this.tree = localData?.tree;
+			this.isStored = true;
+		} else {
+			this.tree = {};
+		}
+
+		this.refresh();
+	}
+
 
 	updateItem(data: any): void {
 
-		this.tree = difference(this.origin, data);
-
+		this.tree = data;
 		this.refresh();
 	}
 

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getFileName, genLabel } from '../../utilities/oneUtils';
+import { getFileName, genLabel, difference, clone } from '../../utilities/oneUtils';
 import { LocalStorageService } from '../../utilities/localStorageService';
 import { RegexRaw } from '../../utilities/RTpyes';
 export class TodoView implements vscode.TreeDataProvider<Node> {
@@ -17,6 +17,8 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 	private origin: any = {}
 	private regexRaw: RegexRaw = {} as RegexRaw;
 
+	private deletedData: any = {}
+
 	constructor(context: vscode.ExtensionContext) {
 		this.storageManager = new LocalStorageService(context.workspaceState);
 
@@ -24,7 +26,7 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 		context.subscriptions.push(view);
 
 		context.subscriptions.push(
-			vscode.commands.registerCommand('AuditSearch.initTodoView', (data, regexRaw) => this.setData(data, regexRaw))
+			vscode.commands.registerCommand('AuditSearch.initTodoView', (data, regexRaw) => this.setData2(data, regexRaw))
 		)
 
 		context.subscriptions.push(
@@ -33,7 +35,7 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 
 		// delete item
 		context.subscriptions.push(
-			vscode.commands.registerCommand('AuditSearch.deleteTodoItem', (item) => this.deleteItem(item))
+			vscode.commands.registerCommand('AuditSearch.deleteTodoItem', (item) => this.deleteItem2(item))
 		)
 		// clear mode
 		context.subscriptions.push(
@@ -41,7 +43,7 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 		)
 		// save mode
 		context.subscriptions.push(
-			vscode.commands.registerCommand('AuditSearch.saveTodo', () => this.saveData())
+			vscode.commands.registerCommand('AuditSearch.saveTodo', () => this.saveData2())
 		)
 
 
@@ -64,6 +66,19 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 		}
 	}
 
+	saveData2(): void {
+		this.isStored = true;
+		if (this.regex) {
+			this.storageManager?.setValue(this.regex,
+				{
+					regexRaw: this.regexRaw,
+					tree: this.deletedData
+				}
+			)
+			vscode.commands.executeCommand('AuditSearch.updateLocalData')
+		}
+	}
+
 	deleteAllData(): void {
 		this.isStored = false;
 		if (this.regex) {
@@ -71,6 +86,7 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 			vscode.commands.executeCommand('AuditSearch.updateLocalData')
 		}
 	}
+
 
 	setData(data: any, regexRaw: RegexRaw): void {
 		this.regexRaw = regexRaw;
@@ -91,6 +107,29 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 			}
 			// if no store, we just use memory
 			this.tree = data;
+		}
+
+		this.refresh();
+
+	}
+
+	// data: all search results
+	setData2(data: any, regexRaw: RegexRaw): void {
+		this.regexRaw = regexRaw;
+		this.regex = regexRaw.re;
+		this.origin = clone(data);
+
+		// get previous stored data
+		var localData: any = this.storageManager?.getValue(this.regex)
+		// if exist, then we load stored data instead of search results
+		if (localData) {
+			this.deletedData = localData?.tree;
+			// calculate todo items from deleted items
+			this.tree = difference(this.origin, this.deletedData);
+			this.isStored = true;
+		} else {
+			// if no store, we just use memory
+			this.tree = this.origin;
 		}
 
 		this.refresh();
@@ -122,6 +161,44 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 		}
 
 		vscode.commands.executeCommand('AuditSearch.updateDeletedView', this.tree)
+		this.refresh();
+	}
+
+	deleteItem2(item: any): void {
+		let filePath = item.filePath
+		let hash = item.hash
+
+		if (filePath == '') {
+			//record deleted items
+			this.deletedData[hash] = clone(this.tree[hash])
+			//delete all item in file
+			delete this.tree[hash]
+
+		} else {
+			//record deleted items
+			var deleteItem = clone(this.tree[filePath][hash])
+			if (filePath in this.deletedData) {
+				this.deletedData[filePath][hash] = deleteItem
+			} else {
+				this.deletedData[filePath] = { [hash]: deleteItem }
+			}
+
+			//delete single item
+			delete this.tree[filePath][hash]
+			if (Object.keys(this.tree[filePath]).length == 0)
+				delete this.tree[filePath]
+		}
+
+		if (this.isStored) {
+			this.storageManager?.setValue(this.regex,
+				{
+					regexRaw: this.regexRaw,
+					tree: this.deletedData
+				}
+			)
+		}
+
+		vscode.commands.executeCommand('AuditSearch.updateDeletedView', this.deletedData)
 		this.refresh();
 	}
 
