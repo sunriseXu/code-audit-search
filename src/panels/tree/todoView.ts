@@ -130,6 +130,7 @@ export class TodoView implements vscode.TreeDataProvider<Node> {
 		} else {
 			// if no store, we just use memory
 			this.tree = this.origin;
+			this.deletedData = {};
 		}
 
 		this.refresh();
